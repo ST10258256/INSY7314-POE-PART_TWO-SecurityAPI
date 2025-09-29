@@ -6,24 +6,53 @@ on:
   pull_request:
     branches: [ main , develop ]
 
+
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: Backend
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x 
-        
-    - name: Restore dependencies
-      run: dotnet restore SecurityAPI.sln
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Build
-      run: dotnet build SecurityAPI.sln --no-restore --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore ../SecurityAPI.sln
 
-    - name: Test
-      run: dotnet test SecurityAPI.sln --no-build --verbosity normal
+      - name: Build
+        run: dotnet build ../SecurityAPI.sln --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test ../SecurityAPI.sln --no-build --verbosity normal
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build
+        run: npm run build
