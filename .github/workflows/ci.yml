@@ -1,41 +1,29 @@
-name: CI - Frontend & API
+name: .NET Core CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main , develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main , develop ]
 
 jobs:
-  frontend:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Frontend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-      - run: npm audit --audit-level=moderate
 
-  api:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Backend  
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm audit --audit-level=moderate
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x 
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
