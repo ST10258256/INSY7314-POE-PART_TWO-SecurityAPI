@@ -18,15 +18,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x 
-
+        
     - name: Restore dependencies
-      run: dotnet restore
-      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
+      run: dotnet restore SecurityAPI.sln
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release
-      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
+      run: dotnet build SecurityAPI.sln --no-restore --configuration Release
 
-    - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
-      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
+    - name: Test
+      run: dotnet test SecurityAPI.sln --no-build --verbosity normal
