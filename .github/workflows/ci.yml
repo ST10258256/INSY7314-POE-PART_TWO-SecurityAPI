@@ -21,9 +21,12 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
 
     - name: Build
       run: dotnet build --no-restore --configuration Release
+      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
 
     - name: Run tests
       run: dotnet test --no-build --configuration Release --verbosity normal
+      working-directory: INSY7314-POE-PART_TWO-SecurityAPI
