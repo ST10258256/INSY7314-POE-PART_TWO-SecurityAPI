@@ -1,3 +1,4 @@
+name: CI - Frontend & API
 
 on:
   push:
