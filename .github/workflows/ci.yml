@@ -2,10 +2,9 @@ name: .NET Core CI
 
 on:
   push:
-    branches: [ main , develop ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main , develop ]
-
+    branches: [ main, develop ]
 
 jobs:
   backend:
@@ -13,6 +12,13 @@ jobs:
     defaults:
       run:
         working-directory: Backend
+    env: 
+      MONGO_CONNECTION_STRING: ${{ secrets.MONGO_CONNECTION_STRING }}
+      MONGO_DATABASE_NAME: ${{ secrets.MONGO_DATABASE_NAME }}
+      JWT_KEY: ${{ secrets.JWT_KEY }}
+      JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+      JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
+      JWT_EXPIREMINUTES: ${{ secrets.JWT_EXPIREMINUTES }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
