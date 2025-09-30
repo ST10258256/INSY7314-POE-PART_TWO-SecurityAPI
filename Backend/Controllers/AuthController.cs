@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
         {
             Email = dto.Email,
             PasswordHash = hash,
-            PasswordSalt = salt
+            PasswordSalt = salt,
         };
 
         await _userRepo.CreateAsync(user);
