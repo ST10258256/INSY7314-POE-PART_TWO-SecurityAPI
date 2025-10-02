@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "R8sskBnK3whpk97an9w15OS3nYKTbo5YaGFlm19JSG/l5EhxIotcOVNCDPEvnyKmO5p+szjzGpPdcfsf8O+h7Q==",
+  "dgSpecHash": "+q3GEHjbuQk=",
   "success": true,
   "projectFilePath": "C:\\Users\\lukej\\OneDrive\\Documents\\Varsity College\\INSY7314\\INSY7314-POE-PART_TWO-SecurityAPI\\Backend\\Backend.csproj",
   "expectedPackageFiles": [
@@ -110,7 +110,11 @@
     "C:\\Users\\lukej\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\lukej\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\lukej\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\lukej\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512"
+    "C:\\Users\\lukej\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512",
+    "C:\\Users\\lukej\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.20\\microsoft.netcore.app.ref.8.0.20.nupkg.sha512",
+    "C:\\Users\\lukej\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.20\\microsoft.windowsdesktop.app.ref.8.0.20.nupkg.sha512",
+    "C:\\Users\\lukej\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.20\\microsoft.aspnetcore.app.ref.8.0.20.nupkg.sha512",
+    "C:\\Users\\lukej\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.20\\microsoft.netcore.app.host.win-x64.8.0.20.nupkg.sha512"
   ],
   "logs": []
 }
