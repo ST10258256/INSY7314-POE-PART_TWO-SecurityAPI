@@ -1,35 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
+import React from "react";
+//we use route in order to define the different routes of our application
+import { Route, Routes } from "react-router-dom";
+//we import all the components we need in our app
+import Navbar from "./components/navbar";
+import PostList from "./components/postList";
+import EditPost from "./components/postEdit";
+import CreatePost from "./components/postCreate";
+import Register from "./components/register";
+import Login from "./components/login";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <Navbar />
+      <Routes>
+        <Route exact path="/" element={<PostList />} />
+        <Route path="/edit/:id" element={<EditPost />} />
+        <Route path="/create" element={<CreatePost />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </div>
+  );
+};
 
-export default App
+export default App;
