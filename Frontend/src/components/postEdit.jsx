@@ -1,33 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function PostEdit() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  function handleSave(e) {
+    e.preventDefault();
+    alert("Post saved (placeholder)");
+    navigate("/");
+  }
   return (
-    <div className="container">
-      <h3 className="header">APDS notice Board</h3>
-      <table className="table table-striped" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Caption</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Example row */}
-          <tr>
-            <td>John Doe</td>
-            <td>Sample caption</td>
-            <td>Image URL</td>
-            <td>
-              <Link to="/edit/1" className="btn btn-sm btn-primary">
-                Edit
-              </Link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div>
+      <h2>Edit Post (placeholder) — ID: {id}</h2>
+      <form onSubmit={handleSave}>
+        <div className="mb-3">
+          <label className="form-label">Title</label>
+          <input className="form-control" defaultValue={`Post ${id}`} />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Body</label>
+          <textarea className="form-control" rows="4">Post body</textarea>
+        </div>
+        <button className="btn btn-primary" type="submit">Save</button>
+      </form>
     </div>
   );
 }

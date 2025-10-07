@@ -1,33 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function PostCreate() {
+  const navigate = useNavigate();
+  function handleCreate(e) {
+    e.preventDefault();
+    // placeholder: in real app call backend
+    alert("Post created (placeholder)");
+    navigate("/");
+  }
   return (
-    <div className="container">
-      <h3 className="header">APDS notice Board</h3>
-      <table className="table table-striped" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Caption</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Example row */}
-          <tr>
-            <td>John Doe</td>
-            <td>Sample caption</td>
-            <td>Image URL</td>
-            <td>
-              <Link to="/edit/1" className="btn btn-sm btn-primary">
-                Edit
-              </Link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div>
+      <h2>Create Post (placeholder)</h2>
+      <form onSubmit={handleCreate}>
+        <div className="mb-3">
+          <label className="form-label">Title</label>
+          <input className="form-control" />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Body</label>
+          <textarea className="form-control" rows="4" />
+        </div>
+        <button className="btn btn-primary" type="submit">Create</button>
+      </form>
     </div>
   );
 }

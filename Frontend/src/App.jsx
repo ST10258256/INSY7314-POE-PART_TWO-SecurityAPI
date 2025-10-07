@@ -1,29 +1,50 @@
-import "./App.css";
 import React from "react";
-// we use Route in order to define the different routes of our application
-import { Route, Routes } from "react-router-dom";
-// we import all the components we need in our app
-import NavBar from "./components/navbar";   // Use same casing as component
-import PostList from "./components/postList";
-import EditPost from "./components/postEdit";
-import CreatePost from "./components/postCreate";
-import Register from "./components/register";
-import Login from "./components/login";
+import { Routes, Route } from "react-router-dom";
 
-const App = () => {
+import Navbar from "./components/Navbar";
+import PostList from "./components/PostList";
+import PostCreate from "./components/PostCreate";
+import PostEdit from "./components/PostEdit";
+import Register from "./components/Register";
+import Login from "./components/Login";
+
+import Dashboard from "./pages/Dashboard";
+import PaymentForm from "./pages/PaymentForm";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+export default function App() {
   return (
     <div>
-      <NavBar />
-      <Routes>
-        {/* In React Router v6, "exact" is no longer needed */}
-        <Route path="/" element={<PostList />} />
-        <Route path="/edit/:id" element={<EditPost />} />
-        <Route path="/create" element={<CreatePost />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <Navbar />
+      <main className="container my-4">
+        <Routes>
+          <Route path="/" element={<PostList />} />
+          <Route path="/create" element={<PostCreate />} />
+          <Route path="/edit/:id" element={<PostEdit />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/pay"
+            element={
+              <ProtectedRoute>
+                <PaymentForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<h2>404 - Not Found</h2>} />
+        </Routes>
+      </main>
     </div>
   );
-};
-
-export default App;
+}
