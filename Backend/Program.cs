@@ -79,8 +79,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactLocal", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:3000"  // React dev server
+            // "https://your-frontend.onrender.com" // optional production frontend later
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
 
+app.UseCors("AllowReactLocal");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
