@@ -28,6 +28,18 @@ public class AuthController : ControllerBase
 
         if (await _userRepo.GetByEmailAsync(dto.Email) != null)
             return BadRequest("Email already exists");
+        
+        if (await _userRepo.GetByAccountNumberAsync(dto.AccountNumber) != null)
+            return BadRequest("Account Number already exists");
+        
+
+        if (dto.Password.Length < 6)
+            return BadRequest("Password must be at least 6 characters long");
+        
+        if (!Regex.IsMatch(dto.Password, @"[A-Z]"))
+            return BadRequest("Password must contain at least one uppercase letter");
+
+        
 
         PasswordHelper.CreatePasswordHash(dto.Password, out byte[] hash, out byte[] salt);
 
@@ -35,6 +47,11 @@ public class AuthController : ControllerBase
         var user = new User
         {
             Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Username = dto.Username,
+            IdNumber = dto.IdNumber,
+            AccountNumber = dto.AccountNumber,
             PasswordHash = hash,
             PasswordSalt = salt,
         };
@@ -46,7 +63,8 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        var user = await _userRepo.GetByEmailAsync(dto.Email);
+        var user = await _userRepo.GetByAccountNumberAsync(dto.AccountNumber);
+         //   await _userRepo.GetByEmailAsync(dto.Email);
         if (user == null || !PasswordHelper.VerifyPassword(dto.Password, user.PasswordHash, user.PasswordSalt))
             return Unauthorized("Invalid credentials");
 
@@ -56,7 +74,7 @@ public class AuthController : ControllerBase
 
 
     private string GenerateJwtToken(User user)
-{
+    {
     var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")!;
     var keyBytes = Encoding.UTF8.GetBytes(jwtKey); 
     var key = new SymmetricSecurityKey(keyBytes);
@@ -66,7 +84,8 @@ public class AuthController : ControllerBase
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id!),
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role)
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("account_number", user.AccountNumber)
     };
 
     var token = new JwtSecurityToken(
@@ -78,7 +97,7 @@ public class AuthController : ControllerBase
     );
 
     return new JwtSecurityTokenHandler().WriteToken(token);
-}
+    }   
 
 
 

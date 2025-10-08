@@ -17,6 +17,9 @@ namespace Backend.Repositories
         public async Task<User?> GetByEmailAsync(string email) =>
             await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
 
+        public async Task<User?> GetByAccountNumberAsync(string accountNumber) =>
+            await _users.Find(u => u.AccountNumber == accountNumber).FirstOrDefaultAsync();
+
         public async Task<User?> GetByIdAsync(string id) =>
             await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
 
