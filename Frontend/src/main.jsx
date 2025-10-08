@@ -1,11 +1,15 @@
+// src/main.jsx
 import React from "react";
-import ReactDOM from "react-dom/client";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { BrowserRouter } from "react-router-dom";
+import { createRoot } from "react-dom/client";
+// Use HashRouter instead of BrowserRouter for static hosts / file:// testing
+import { HashRouter } from "react-router-dom";
 import App from "./App";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <HashRouter>
+      <App />
+    </HashRouter>
+  </React.StrictMode>
 );
