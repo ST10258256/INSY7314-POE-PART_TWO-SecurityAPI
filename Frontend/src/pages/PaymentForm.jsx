@@ -1,17 +1,19 @@
-// src/pages/PaymentForm.jsx
 import React, { useState } from "react";
 import { submitPayment } from "../api";
 import { useNavigate } from "react-router-dom";
 
-
 export default function PaymentForm() {
-  const auth = getAuth();
   const navigate = useNavigate();
+
+  // Read auth token and user from localStorage
+  const token = localStorage.getItem("bank_token");
+  const user = JSON.parse(localStorage.getItem("bank_user") || "{}");
+
   const [form, setForm] = useState({
     amount: "",
     currency: "ZAR",
     swiftCode: "",
-    accountNumber: auth?.user?.accountNumber ?? "",
+    accountNumber: "", // beneficiary account
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,22 +37,22 @@ export default function PaymentForm() {
     setLoading(true);
     try {
       const payload = {
-        amount: Number(form.amount),
-        currency: form.currency,
-        swiftCode: form.swiftCode,
-        accountNumber: form.accountNumber,
+        Amount: Number(form.amount),       // match PaymentDto property names
+        Currency: form.currency,
+        SWIFTCode: form.swiftCode,
+        AccountNumber: form.accountNumber
       };
 
-      const resp = await submitPayment(payload, auth?.token);
-      if (resp?.status >= 200 && resp?.status < 300) {
-        // success — go to dashboard (which will re-fetch from API)
-        navigate("/dashboard");
-      } else {
-        throw new Error("Server rejected payment");
-      }
+      // Call backend API
+      const resp = await submitPayment(payload, token);
+
+      // If we get here, it succeeded
+      alert(`Payment of ${form.amount} ${form.currency} submitted successfully!`);
+      navigate("/dashboard"); // or wherever you want
+
     } catch (err) {
       console.error("Payment error:", err);
-      const msg = err?.response?.data?.message || err.message || "Payment failed";
+      const msg = err?.response?.data || err.message || "Payment failed";
       setError(msg);
     } finally {
       setLoading(false);
@@ -66,12 +68,24 @@ export default function PaymentForm() {
             <div className="row g-2">
               <div className="col-md-4">
                 <label className="form-label small">Amount</label>
-                <input name="amount" type="number" step="0.01" className="form-control" value={form.amount} onChange={onChange} />
+                <input
+                  name="amount"
+                  type="number"
+                  step="0.01"
+                  className="form-control"
+                  value={form.amount}
+                  onChange={onChange}
+                />
               </div>
 
               <div className="col-md-4">
                 <label className="form-label small">Currency</label>
-                <select name="currency" className="form-select" value={form.currency} onChange={onChange}>
+                <select
+                  name="currency"
+                  className="form-select"
+                  value={form.currency}
+                  onChange={onChange}
+                >
                   <option>ZAR</option>
                   <option>USD</option>
                   <option>EUR</option>
@@ -81,22 +95,40 @@ export default function PaymentForm() {
 
               <div className="col-md-4">
                 <label className="form-label small">SWIFT code</label>
-                <input name="swiftCode" className="form-control" value={form.swiftCode} onChange={onChange} />
+                <input
+                  name="swiftCode"
+                  className="form-control"
+                  value={form.swiftCode}
+                  onChange={onChange}
+                />
               </div>
             </div>
 
             <div className="row g-2 mt-2">
               <div className="col-md-6">
                 <label className="form-label small">Beneficiary account number</label>
-                <input name="accountNumber" className="form-control" value={form.accountNumber} onChange={onChange} />
+                <input
+                  name="accountNumber"
+                  className="form-control"
+                  value={form.accountNumber}
+                  onChange={onChange}
+                />
               </div>
             </div>
 
             {error && <div className="alert alert-danger mt-3 py-2">{error}</div>}
 
             <div className="mt-3 d-flex gap-2">
-              <button className="btn btn-primary" type="submit" disabled={loading}>{loading ? "Processing…" : "Pay Now"}</button>
-              <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/dashboard")}>Cancel</button>
+              <button className="btn btn-primary" type="submit" disabled={loading}>
+                {loading ? "Processing…" : "Pay Now"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => navigate("/dashboard")}
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
