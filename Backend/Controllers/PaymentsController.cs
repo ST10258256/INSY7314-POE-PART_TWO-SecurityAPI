@@ -1,9 +1,7 @@
 using Backend.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,11 +18,15 @@ public class PaymentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreatePayment([FromBody] PaymentDto dto)
     {
-        if (!Regex.IsMatch(dto.SWIFTCode, @"^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$"))
-            return BadRequest("Invalid SWIFT code");
-
-        if (dto.Amount <= 0)
-            return BadRequest("Invalid amount");
+        // Validate DTO
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                                   .SelectMany(v => v.Errors)
+                                   .Select(e => e.ErrorMessage)
+                                   .ToList();
+            return BadRequest(new { Errors = errors });
+        }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -33,7 +35,8 @@ public class PaymentsController : ControllerBase
             UserId = userId!,
             Amount = dto.Amount,
             Currency = dto.Currency,
-            SWIFTCode = dto.SWIFTCode
+            SWIFTCode = dto.SWIFTCode,
+            AccountNumber = dto.AccountNumber
         };
 
         await _paymentRepo.CreateAsync(payment);
