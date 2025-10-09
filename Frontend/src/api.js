@@ -1,90 +1,57 @@
-// frontend/src/api.js
-import axios from "axios";
+// src/api.js
+const BASE = import.meta.env.VITE_API_BASE || ""; // e.g. "http://localhost:5000"
 
 /**
- * Axios instance.
- * Using baseURL "/api" so Vite dev server proxy forwards requests to your backend.
- * If you prefer to call the backend directly, change baseURL to the full URL:
- *   baseURL: "https://securityapi-x4rg.onrender.com/api"
+ * Generic fetch wrapper that returns { status, ok, data }
  */
-const API = axios.create({
-  baseURL: "https://securityapi-x4rg.onrender.com/api", 
-  headers: { "Content-Type": "application/json" },
-  timeout: 15_000,
-  withCredentials: false,
-});
+async function request(path, method = "GET", body = null, token = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  const opts = { method, headers };
+  if (body !== null) opts.body = JSON.stringify(body);
 
-function authHeader(token) {
-  // If token provided, return header object; otherwise try to read from localStorage.
-  const t = token ?? localStorage.getItem("bank_token");
-  return t ? { Authorization: `Bearer ${t}` } : {};
-}
+  const res = await fetch(`${BASE}${path}`, opts);
 
-function formatAxiosError(err) {
-  if (err.response) {
-    // Server responded with a status outside 2xx
-    const status = err.response.status;
-    const data = err.response.data || {};
-    const message =
-      data.message ||
-      data.error ||
-      (typeof data === "string" ? data : `Request failed with status ${status}`);
-    return new Error(message);
-  } else if (err.request) {
-    // Request made but no response
-    return new Error("No response from server. Check network / server status.");
+  let data = null;
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) {
+    try { data = await res.json(); } catch (e) { data = null; }
   } else {
-    // Something else
-    return new Error(err.message || "Request error");
+    // try text fallback
+    try { data = await res.text(); } catch (e) { data = null; }
   }
+
+  return { status: res.status, ok: res.ok, data };
 }
 
-/* ===== Public API functions ===== */
-
-export async function registerCustomer(payload) {
-  // POST /api/register
-  try {
-    const res = await API.post("/register", payload);
-    return res.data;
-  } catch (err) {
-    throw formatAxiosError(err);
-  }
+/**
+ * Register - matches RegisterDto:
+ * { firstName, lastName, username, idNumber, accountNumber, email, password }
+ */
+export async function register(payload) {
+  return request("/api/Auth/register", "POST", payload);
 }
 
-export async function loginCustomer(payload) {
-  // POST /api/login
-  try {
-    const res = await API.post("/login", payload);
-    return res.data;
-  } catch (err) {
-    throw formatAxiosError(err);
-  }
+/**
+ * Login - matches LoginDto:
+ * { username, accountNumber, password }
+ */
+export async function login(payload) {
+  return request("/api/Auth/login", "POST", payload);
 }
 
+/**
+ * Submit Payment - PaymentDto:
+ * { amount, currency, swiftCode, accountNumber }
+ */
 export async function submitPayment(payload, token) {
-  // POST /api/payments
-  try {
-    const res = await API.post("/payments", payload, {
-      headers: { ...authHeader(token) },
-    });
-    return res.data;
-  } catch (err) {
-    throw formatAxiosError(err);
-  }
+  return request("/api/Payments", "POST", payload, token);
 }
 
-export async function fetchMyPayments(token) {
-  // GET /api/payments (customer-specific)
-  try {
-    const res = await API.get("/payments", {
-      headers: { ...authHeader(token) },
-    });
-    return res.data;
-  } catch (err) {
-    throw formatAxiosError(err);
-  }
+/**
+ * Get Payments
+ */
+export async function getPayments(token) {
+  return request("/api/Payments", "GET", null, token);
 }
-
-/* Optional: export raw axios instance if you need advanced usage elsewhere */
-export { API };

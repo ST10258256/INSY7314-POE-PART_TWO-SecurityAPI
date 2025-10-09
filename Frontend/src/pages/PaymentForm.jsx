@@ -3,15 +3,21 @@ import React, { useState } from "react";
 import { submitPayment } from "../api";
 import { useNavigate } from "react-router-dom";
 
-
 export default function PaymentForm() {
-  const auth = getAuth();
   const navigate = useNavigate();
+
+  // try to prefill account number if you saved user info under "apds_auth"
+  let storedAccount = "";
+  try {
+    const s = JSON.parse(localStorage.getItem("apds_auth") || "null");
+    storedAccount = s?.user?.accountNumber ?? "";
+  } catch {}
+
   const [form, setForm] = useState({
     amount: "",
     currency: "ZAR",
     swiftCode: "",
-    accountNumber: auth?.user?.accountNumber ?? "",
+    accountNumber: storedAccount,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,7 +27,7 @@ export default function PaymentForm() {
     setForm(prev => ({ ...prev, [name]: value }));
   }
 
-  async function submit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
 
@@ -41,17 +47,17 @@ export default function PaymentForm() {
         accountNumber: form.accountNumber,
       };
 
-      const resp = await submitPayment(payload, auth?.token);
-      if (resp?.status >= 200 && resp?.status < 300) {
-        // success — go to dashboard (which will re-fetch from API)
+      // <-- SIMPLE: call submitPayment without a token
+      const resp = await submitPayment(payload);
+
+      if (resp?.ok) {
         navigate("/dashboard");
       } else {
-        throw new Error("Server rejected payment");
+        setError(resp?.data?.message || `Payment failed (${resp?.status ?? "?"})`);
       }
     } catch (err) {
       console.error("Payment error:", err);
-      const msg = err?.response?.data?.message || err.message || "Payment failed";
-      setError(msg);
+      setError(err?.message || "Payment failed");
     } finally {
       setLoading(false);
     }
@@ -62,7 +68,7 @@ export default function PaymentForm() {
       <div className="card shadow-sm" style={{ width: 720 }}>
         <div className="card-body">
           <h4>International Payment</h4>
-          <form onSubmit={submit}>
+          <form onSubmit={handleSubmit}>
             <div className="row g-2">
               <div className="col-md-4">
                 <label className="form-label small">Amount</label>
