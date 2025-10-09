@@ -17,5 +17,21 @@ export function validateInput(value, type) {
 }
 
 export function sanitizeInput(value) {
-  return value.replace(/<[^>]*>/g, ""); // remove any HTML tags
+  if (typeof value !== "string") return value;
+
+  // Remove HTML tags completely
+  let sanitized = value.replace(/<[^>]*>/g, "");
+
+  // Remove any script-like patterns (simple XSS defense)
+  sanitized = sanitized.replace(/javascript:/gi, "").replace(/on\w+=/gi, "");
+
+  // Allow normal ASCII + Unicode, just remove control characters
+  sanitized = sanitized.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
+  // Trim whitespace
+  sanitized = sanitized.trim();
+
+  return sanitized;
 }
+
+

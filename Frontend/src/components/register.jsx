@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { registerCustomer } from "../api";
 import * as validation from "../utils/validation"; 
 
-
 export default function Register() {
   const [form, setForm] = useState({
     firstName: "",
@@ -20,7 +19,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   function onChange(e) {
-    const sanitizedValue = sanitizeInput(e.target.value);
+    const sanitizedValue = validation.sanitizeInput(e.target.value);
     setForm(prev => ({ ...prev, [e.target.name]: sanitizedValue }));
   }
 
@@ -31,45 +30,44 @@ export default function Register() {
     setLoading(true);
 
     // Frontend validation using your patterns
-    if (!validateInput.validateInput(form.firstName, "fullName")) {
+    if (!validation.validateInput(form.firstName, "fullName")) {
       setError("Invalid first name");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.lastName, "fullName")) {
+    if (!validation.validateInput(form.lastName, "fullName")) {
       setError("Invalid last name");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.username, "username")) {
+    if (!validation.validateInput(form.username, "username")) {
       setError("Invalid username");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.email, "email")) {
+    if (!validation.validateInput(form.email, "email")) {
       setError("Invalid email address");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.idNumber, "idNumber")) {
+    if (!validation.validateInput(form.idNumber, "idNumber")) {
       setError("Invalid ID number");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.accountNumber, "accountNumber")) {
+    if (!validation.validateInput(form.accountNumber, "accountNumber")) {
       setError("Invalid account number");
       setLoading(false);
       return;
     }
-    if (!validateInput.validateInput(form.password, "password")) {
+    if (!validation.validateInput(form.password, "password")) {
       setError("Invalid password");
       setLoading(false);
       return;
     }
 
     try {
-      const payload = { ...form };
-      const res = await registerCustomer({ ...form }); 
+      const res = await registerCustomer({ ...form });
       setSuccess("Registered successfully! Redirecting...");
 
       if (res?.user) localStorage.setItem("bank_user", JSON.stringify(res.user));
