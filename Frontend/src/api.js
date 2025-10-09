@@ -8,11 +8,12 @@ import axios from "axios";
  *   baseURL: "https://securityapi-x4rg.onrender.com/api"
  */
 const API = axios.create({
-  baseURL: "/api",
+  baseURL: "https://securityapi-x4rg.onrender.com/api", 
   headers: { "Content-Type": "application/json" },
-  timeout: 15_000, // 15s timeout
+  timeout: 15_000,
   withCredentials: false,
 });
+
 
 function authHeader(token) {
   // If token provided, return header object; otherwise try to read from localStorage.

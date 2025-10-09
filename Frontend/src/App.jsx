@@ -9,8 +9,8 @@ import Navbar from "./components/navbar";
 // import PostCreate from "./components/PostCreate";
 // import PostEdit from "./components/PostEdit";
 
-import Register from "./components/Register";
-import Login from "./components/Login";
+import Register from "./components/register";
+import Login from "./components/login";
 
 import Dashboard from "./pages/Dashboard";
 import PaymentForm from "./pages/PaymentForm";

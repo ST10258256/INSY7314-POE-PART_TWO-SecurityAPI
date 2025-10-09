@@ -1,8 +1,8 @@
 // src/pages/PaymentForm.jsx
 import React, { useState } from "react";
-import { createPayment } from "../api";
+import { submitPayment } from "../api";
 import { useNavigate } from "react-router-dom";
-import { getAuth } from "../auth";
+
 
 export default function PaymentForm() {
   const auth = getAuth();
@@ -41,7 +41,7 @@ export default function PaymentForm() {
         accountNumber: form.accountNumber,
       };
 
-      const resp = await createPayment(payload);
+      const resp = await submitPayment(payload, auth?.token);
       if (resp?.status >= 200 && resp?.status < 300) {
         // success — go to dashboard (which will re-fetch from API)
         navigate("/dashboard");
