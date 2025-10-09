@@ -7,6 +7,8 @@ export default function PaymentForm() {
 
   // Read auth token and user from localStorage
   const token = localStorage.getItem("bank_token");
+
+  // eslint-disable-next-line no-unused-vars
   const user = JSON.parse(localStorage.getItem("bank_user") || "{}");
 
   const [form, setForm] = useState({
@@ -45,6 +47,7 @@ export default function PaymentForm() {
 
       // Call backend API
       const resp = await submitPayment(payload, token);
+      console.log(resp);
 
       // If we get here, it succeeded
       alert(`Payment of ${form.amount} ${form.currency} submitted successfully!`);
