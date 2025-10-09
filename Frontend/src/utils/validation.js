@@ -19,8 +19,13 @@ export function validateInput(value, type) {
 export function sanitizeInput(value) {
   if (typeof value !== "string") return value;
 
-  // Remove HTML tags completely
-  let sanitized = value.replace(/<[^>]*>/g, "");
+  // Remove HTML tags completely (repeat until no matches remain)
+  let sanitized = value;
+  let previousSanitizedTag;
+  do {
+    previousSanitizedTag = sanitized;
+    sanitized = sanitized.replace(/<[^>]*>/g, "");
+  } while (sanitized !== previousSanitizedTag);
 
   // Remove any script-like patterns and executable schemes (simple XSS defense)
   // Apply multi-character replacements repeatedly
