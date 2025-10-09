@@ -1,14 +1,37 @@
 using Backend.Repositories;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 // Load .env file
 Env.Load();
+Console.WriteLine(Environment.GetEnvironmentVariable("JWT_KEY"));
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load SSL certificate
+var certPath = Path.Combine(builder.Environment.ContentRootPath, "cert.pem");
+var keyPath = Path.Combine(builder.Environment.ContentRootPath, "key.pem");
+var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
+certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+
+// Configure Kestrel with HTTPS using the certificate
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Listen on HTTP
+    options.ListenLocalhost(5162);
+
+    // Listen on HTTPS
+    options.ListenLocalhost(7068, listenOptions =>
+    {
+        listenOptions.UseHttps(certificate);
+    });
+});
 
 // Read env variables
 var mongoConnection = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
@@ -54,7 +77,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Banking API", Version = "v1" });
 
-    // Add JWT Authorization to Swagger
+    // JWT Authorization in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
@@ -85,38 +108,40 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactLocal", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:5173",  //For the local react development server
+            "http://localhost:5173",
             "http://localhost:5174",
-             "https://securityapi-x4rg.onrender.com" //For the deployed react app on render.com
+            "https://securityapi-x4rg.onrender.com"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
 });
 
-
 var app = builder.Build();
 
+// Apply CORS
 app.UseCors("AllowReactLocal");
+
+// Enforce HTTPS in non-development
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();  // Strict HTTPS headers
+}
+
+// Redirect all HTTP to HTTPS
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
-
-//Remove this code when we are finished, this is only being used when to test if the hosting of the api works
+// Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking API V1");
     c.RoutePrefix = string.Empty;
 });
-
 
 app.Run();
