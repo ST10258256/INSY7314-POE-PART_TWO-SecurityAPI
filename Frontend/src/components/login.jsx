@@ -1,33 +1,70 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginCustomer } from "../api"; 
 
 export default function Login() {
+  const [form, setForm] = useState({ accountNumber: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  function onChange(e) {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+
+    try {
+      // Call backend
+      const res = await loginCustomer({
+        accountNumber: form.accountNumber,
+        password: form.password
+      });
+
+      // The backend returns: { token: "..." }
+      const token = res?.token || res?.Token; 
+      if (!token) {
+        setError("No token returned from server");
+        return;
+      }
+
+      // Store token and user info locally
+      localStorage.setItem("bank_token", token);
+    
+
+      // Navigate to dashboard
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.error("Login error:", err);
+      // Axios error has err.response.data for backend message
+      setError(err.response?.data || err.message || "Login failed");
+    }
+  }
+
   return (
-    <div className="container">
-      <h3 className="header">APDS notice Board</h3>
-      <table className="table table-striped" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Caption</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Example row */}
-          <tr>
-            <td>John Doe</td>
-            <td>Sample caption</td>
-            <td>Image URL</td>
-            <td>
-              <Link to="/edit/1" className="btn btn-sm btn-primary">
-                Edit
-              </Link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div>
+      <h2>Login</h2>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <input
+          name="accountNumber"
+          className="form-control mb-2"
+          placeholder="Account number"
+          value={form.accountNumber}
+          onChange={onChange}
+        />
+        <input
+          type="password"
+          name="password"
+          className="form-control mb-2"
+          placeholder="Password"
+          value={form.password}
+          onChange={onChange}
+        />
+        <button className="btn btn-primary" type="submit">Login</button>
+      </form>
     </div>
   );
 }
