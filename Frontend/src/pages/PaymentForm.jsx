@@ -43,15 +43,16 @@ export default function PaymentForm() {
         Currency: form.currency,
         SWIFTCode: form.swiftCode,
         AccountNumber: form.accountNumber
-      };
-
+      }; 
+/*
       // Map payload to match Swagger PaymentDto (lowercase keys) before calling API ////////////////
       const apiPayload = { ////////////////
         amount: Number(form.amount), ////////////////
         currency: form.currency, ////////////////
         swiftCode: form.swiftCode, ////////////////
         accountNumber: form.accountNumber ////////////////
-      }; ////////////////
+      }; /////////////////*/
+      const apiPayload = payload; // since we already matched the names above
 
       // Call backend API using the mapped payload (matches Swagger schema) ////////////////
       const resp = await submitPayment(apiPayload, token); ////////////////
