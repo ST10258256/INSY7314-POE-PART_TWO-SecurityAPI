@@ -10,8 +10,6 @@ import axios from "axios";
 const API = axios.create({
   baseURL: "https://securityapi-x4rg.onrender.com/api", 
   headers: { "Content-Type": "application/json" },
-  timeout: 15_000,
-  withCredentials: false,
 });
 
 
@@ -43,19 +41,20 @@ function formatAxiosError(err) {
 /* ===== Public API functions ===== */
 
 export async function registerCustomer(payload) {
-  // POST /api/register
   try {
-    const res = await API.post("/register", payload);
+    const res = await API.post("/auth/register", payload);
     return res.data;
   } catch (err) {
-    throw formatAxiosError(err);
+    console.error(err);
+    throw new Error(err.response?.data || "Registration failed");
   }
 }
+
 
 export async function loginCustomer(payload) {
   // POST /api/login
   try {
-    const res = await API.post("/login", payload);
+    const res = await API.post("/Auth/login", payload);
     return res.data;
   } catch (err) {
     throw formatAxiosError(err);
