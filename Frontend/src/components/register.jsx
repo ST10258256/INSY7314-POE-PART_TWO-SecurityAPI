@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerCustomer } from "../api";
-import { validateInput, sanitizeInput } from "../utils/validation";
+import * as validation from "../utils/validation"; 
+
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -30,37 +31,37 @@ export default function Register() {
     setLoading(true);
 
     // Frontend validation using your patterns
-    if (!validateInput(form.firstName, "fullName")) {
+    if (!validateInput.validateInput(form.firstName, "fullName")) {
       setError("Invalid first name");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.lastName, "fullName")) {
+    if (!validateInput.validateInput(form.lastName, "fullName")) {
       setError("Invalid last name");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.username, "username")) {
+    if (!validateInput.validateInput(form.username, "username")) {
       setError("Invalid username");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.email, "email")) {
+    if (!validateInput.validateInput(form.email, "email")) {
       setError("Invalid email address");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.idNumber, "idNumber")) {
+    if (!validateInput.validateInput(form.idNumber, "idNumber")) {
       setError("Invalid ID number");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.accountNumber, "accountNumber")) {
+    if (!validateInput.validateInput(form.accountNumber, "accountNumber")) {
       setError("Invalid account number");
       setLoading(false);
       return;
     }
-    if (!validateInput(form.password, "password")) {
+    if (!validateInput.validateInput(form.password, "password")) {
       setError("Invalid password");
       setLoading(false);
       return;
@@ -68,7 +69,7 @@ export default function Register() {
 
     try {
       const payload = { ...form };
-      const res = await registerCustomer(payload);
+      const res = await registerCustomer({ ...form }); 
       setSuccess("Registered successfully! Redirecting...");
 
       if (res?.user) localStorage.setItem("bank_user", JSON.stringify(res.user));
