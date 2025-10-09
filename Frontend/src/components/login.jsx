@@ -31,10 +31,7 @@ export default function Login() {
 
       // Store token and user info locally
       localStorage.setItem("bank_token", token);
-      localStorage.setItem(
-        "bank_user",
-        JSON.stringify({ accountNumber: form.accountNumber })
-      );
+    
 
       // Navigate to dashboard
       navigate("/dashboard");

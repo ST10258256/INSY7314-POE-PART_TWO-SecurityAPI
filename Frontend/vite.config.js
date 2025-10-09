@@ -10,7 +10,7 @@ proxy: {
 target: 'https://securityapi-x4rg.onrender.com',
 changeOrigin: true,
 secure: true,
-rewrite: (path) => path.replace(/^\/api/, '/api')
+rewrite: (path) => path.replace(/^\/api/, ''),
 }
 }
 }
