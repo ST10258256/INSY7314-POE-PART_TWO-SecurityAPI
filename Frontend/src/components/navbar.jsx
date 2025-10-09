@@ -1,19 +1,15 @@
 import React from "react";
-// import logo from "../logo.svg"; // Uncomment if you have a logo
-import "bootstrap/dist/css/bootstrap.css";
 import { NavLink } from "react-router-dom";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-export default function NavBar() {
+export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        {/* Brand / Logo */}
         <NavLink className="navbar-brand" to="/">
-          {/* <img src={logo} alt="Logo" style={{ width: "40px" }} /> */}
           APDS
         </NavLink>
 
-        {/* Toggle button for mobile */}
         <button
           className="navbar-toggler"
           type="button"
@@ -23,30 +19,50 @@ export default function NavBar() {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon" />
         </button>
 
-        {/* Navbar links */}
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+
+            {/*
+              The Post pages (List / Create / Edit) are intentionally hidden.
+              To re-enable them, remove the comment block below.
+            */}
+            {/*
             <li className="nav-item">
-              <NavLink className="nav-link" to="/">
+              <NavLink className="nav-link" end to="/">
                 List
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/create">
-                Create Post
+                Create
               </NavLink>
             </li>
+            */}
+
             <li className="nav-item">
               <NavLink className="nav-link" to="/register">
                 Register
               </NavLink>
             </li>
+
             <li className="nav-item">
               <NavLink className="nav-link" to="/login">
                 Login
+              </NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/dashboard">
+                Dashboard
+              </NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/pay">
+                Make Payment
               </NavLink>
             </li>
           </ul>

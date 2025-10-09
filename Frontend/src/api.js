@@ -1,67 +1,89 @@
-// src/api.js
-// Axios wrapper for the Banking API.
-// In dev (Vite) this defaults to "/api" so the Vite proxy will forward requests to your Render backend.
-// In production, set VITE_API_BASE to the real API base URL.
-
+// frontend/src/api.js
 import axios from "axios";
-import { getAuth } from "./auth";
-
-const isDev = typeof import.meta !== "undefined" && !!import.meta.env && !!import.meta.env.DEV;
-const envBase = typeof import.meta !== "undefined" && !!import.meta.env ? import.meta.env.VITE_API_BASE : undefined;
-// When in dev use the dev proxy path '/api'. In production prefer explicit VITE_API_BASE if provided.
-const baseURL = isDev ? "/api" : (envBase || "/api");
-
-// axios instance
-const api = axios.create({
-  baseURL,
-  timeout: 10000, // 10s
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// attach Authorization header if token exists
-api.interceptors.request.use(
-  (cfg) => {
-    const auth = getAuth();
-    if (auth?.token) {
-      cfg.headers = cfg.headers ?? {};
-      cfg.headers.Authorization = `Bearer ${auth.token}`;
-    }
-    return cfg;
-  },
-  (err) => Promise.reject(err)
-);
 
 /**
- * API endpoint helpers matching your Swagger:
- * - POST /api/Auth/register
- * - POST /api/Auth/login
- * - POST /api/Payments
- * - GET  /api/Payments
- *
- * All functions return the axios promise so callers can await or use .then/.catch.
+ * Axios instance.
+ * Using baseURL "/api" so Vite dev server proxy forwards requests to your backend.
+ * If you prefer to call the backend directly, change baseURL to the full URL:
+ *   baseURL: "https://securityapi-x4rg.onrender.com/api"
  */
+const API = axios.create({
+  baseURL: "/api",
+  headers: { "Content-Type": "application/json" },
+  timeout: 15_000, // 15s timeout
+  withCredentials: false,
+});
 
-export function registerCustomer(payload) {
-  // payload: { firstName, lastName, username, idNumber, accountNumber, email, password }
-  return api.post("/Auth/register", payload);
+function authHeader(token) {
+  // If token provided, return header object; otherwise try to read from localStorage.
+  const t = token ?? localStorage.getItem("bank_token");
+  return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-export function loginCustomer(payload) {
-  // payload: { username, accountNumber, password }
-  return api.post("/Auth/login", payload);
+function formatAxiosError(err) {
+  if (err.response) {
+    // Server responded with a status outside 2xx
+    const status = err.response.status;
+    const data = err.response.data || {};
+    const message =
+      data.message ||
+      data.error ||
+      (typeof data === "string" ? data : `Request failed with status ${status}`);
+    return new Error(message);
+  } else if (err.request) {
+    // Request made but no response
+    return new Error("No response from server. Check network / server status.");
+  } else {
+    // Something else
+    return new Error(err.message || "Request error");
+  }
 }
 
-export function createPayment(payload) {
-  // payload: { amount, currency, swiftCode, accountNumber }
-  return api.post("/Payments", payload);
+/* ===== Public API functions ===== */
+
+export async function registerCustomer(payload) {
+  // POST /api/register
+  try {
+    const res = await API.post("/register", payload);
+    return res.data;
+  } catch (err) {
+    throw formatAxiosError(err);
+  }
 }
 
-export function getPayments(config = {}) {
-  // config can have { signal } or other axios config entries
-  return api.get("/Payments", config);
+export async function loginCustomer(payload) {
+  // POST /api/login
+  try {
+    const res = await API.post("/login", payload);
+    return res.data;
+  } catch (err) {
+    throw formatAxiosError(err);
+  }
 }
 
-// default export the axios instance if you need to call other endpoints
-export default api;
+export async function submitPayment(payload, token) {
+  // POST /api/payments
+  try {
+    const res = await API.post("/payments", payload, {
+      headers: { ...authHeader(token) },
+    });
+    return res.data;
+  } catch (err) {
+    throw formatAxiosError(err);
+  }
+}
+
+export async function fetchMyPayments(token) {
+  // GET /api/payments (customer-specific)
+  try {
+    const res = await API.get("/payments", {
+      headers: { ...authHeader(token) },
+    });
+    return res.data;
+  } catch (err) {
+    throw formatAxiosError(err);
+  }
+}
+
+/* Optional: export raw axios instance if you need advanced usage elsewhere */
+export { API };
