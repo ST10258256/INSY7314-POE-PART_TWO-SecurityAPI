@@ -23,7 +23,14 @@ export function sanitizeInput(value) {
   let sanitized = value.replace(/<[^>]*>/g, "");
 
   // Remove any script-like patterns and executable schemes (simple XSS defense)
-  sanitized = sanitized.replace(/(?:javascript:|data:|vbscript:)/gi, "").replace(/on\w+=/gi, "");
+  // Apply multi-character replacements repeatedly
+  let previousSanitized;
+  do {
+    previousSanitized = sanitized;
+    sanitized = sanitized
+      .replace(/(?:javascript:|data:|vbscript:)/gi, "")
+      .replace(/on\w+=/gi, "");
+  } while (sanitized !== previousSanitized);
 
   // Allow normal ASCII + Unicode, just remove control characters
   sanitized = sanitized.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, "");
