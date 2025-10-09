@@ -43,10 +43,19 @@ export default function PaymentForm() {
         Currency: form.currency,
         SWIFTCode: form.swiftCode,
         AccountNumber: form.accountNumber
-      };
+      }; 
+/*
+      // Map payload to match Swagger PaymentDto (lowercase keys) before calling API ////////////////
+      const apiPayload = { ////////////////
+        amount: Number(form.amount), ////////////////
+        currency: form.currency, ////////////////
+        swiftCode: form.swiftCode, ////////////////
+        accountNumber: form.accountNumber ////////////////
+      }; /////////////////*/
+      const apiPayload = payload; // since we already matched the names above
 
-      // Call backend API
-      const resp = await submitPayment(payload, token);
+      // Call backend API using the mapped payload (matches Swagger schema) ////////////////
+      const resp = await submitPayment(apiPayload, token); ////////////////
       console.log(resp);
 
       // If we get here, it succeeded
@@ -64,9 +73,13 @@ export default function PaymentForm() {
 
   return (
     <div className="d-flex justify-content-center" style={{ marginTop: 24 }}>
-      <div className="card shadow-sm" style={{ width: 720 }}>
-        <div className="card-body">
-          <h4>International Payment</h4>
+      <div className="card shadow-sm" style={{ width: 720, borderRadius: 12 }}>
+        <div className="card-body p-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="mb-0">International Payment</h4>
+            <small className="text-muted">Secure transfer</small>
+          </div>
+
           <form onSubmit={submit}>
             <div className="row g-2">
               <div className="col-md-4">
@@ -116,6 +129,17 @@ export default function PaymentForm() {
                   value={form.accountNumber}
                   onChange={onChange}
                 />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label small">Reference (optional)</label> {/* //////////////// */}
+                <input
+                  name="reference" ////////////////
+                  className="form-control" ////////////////
+                  placeholder="Payment reference" ////////////////
+                  value={form.reference || ""} ////////////////
+                  onChange={onChange} ////////////////
+                /> {/* //////////////// */}
               </div>
             </div>
 
