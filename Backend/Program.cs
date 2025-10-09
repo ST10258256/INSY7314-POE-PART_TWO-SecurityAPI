@@ -85,8 +85,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactLocal", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:3000",  //For the local react development server
-             "https://your-frontend.onrender.com" //For the deployed react app on render.com
+            "http://localhost:5173",  //For the local react development server
+            "http://localhost:5174",
+             "https://securityapi-x4rg.onrender.com" //For the deployed react app on render.com
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
