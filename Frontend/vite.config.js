@@ -4,8 +4,8 @@ import fs from 'fs'
 import path from 'path'
 
 export default defineConfig(() => {  
-  const localCertPath = path.resolve(__dirname, 'cert.pem')
-  const localKeyPath = path.resolve(__dirname, 'key.pem')
+  const localCertPath = path.resolve(__dirname, 'localhost.pem')
+  const localKeyPath = path.resolve(__dirname, 'localhost-key.pem')
 
   return {
     plugins: [react()],
@@ -18,10 +18,11 @@ export default defineConfig(() => {
         '/api': {
           target: 'https://localhost:5162', // your local HTTPS backend
           changeOrigin: true,
-          secure: false, // because self-signed cert
+          secure: false, 
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },
   }
 })
+
