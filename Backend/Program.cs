@@ -39,28 +39,40 @@ else
     Console.WriteLine("No SSL certificate found. HTTPS will not work.");
 }
 
-//  Configure Kestrel 
-var port = Environment.GetEnvironmentVariable("PORT");
-int.TryParse(port, out var renderPort);
+// Configure Kestrel 
+var renderPort = Environment.GetEnvironmentVariable("PORT") ?? "5162";
+int.TryParse(renderPort, out var portToUse);
+if (portToUse == 0) portToUse = 5162;
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    if (renderPort > 0)
+    if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PORT")))
     {
-        options.ListenAnyIP(renderPort); // Render's port
+        // Local development: use HTTPS
+        if (File.Exists("cert.pem") && File.Exists("key.pem"))
+        {
+            var certificate = X509Certificate2.CreateFromPemFile("cert.pem", "key.pem");
+            certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+
+            options.ListenAnyIP(portToUse, listenOptions =>
+            {
+                listenOptions.UseHttps(certificate); // HTTPS locally
+            });
+        }
+        else
+        {
+            // fallback to HTTP if certs not found
+            options.ListenAnyIP(portToUse);
+        }
     }
     else
     {
-        options.ListenAnyIP(5162); // Local dev HTTP fallback
-        if (certificate != null)
-        {
-            options.ListenAnyIP(7068, listenOptions =>
-            {
-                listenOptions.UseHttps(certificate); // Local dev HTTPS
-            });
-        }
+        // On Render: bind to Render's PORT (HTTP)
+        options.ListenAnyIP(portToUse);
     }
 });
+
+
 
 
 //  MongoDB & Repositories 
@@ -136,6 +148,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5173",
+            "https://localhost:5173",
             "http://localhost:5174",
             "https://securityapi-x4rg.onrender.com"
         )
