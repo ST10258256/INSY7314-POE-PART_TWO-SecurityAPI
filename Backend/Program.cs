@@ -113,14 +113,12 @@ builder.Services.AddCors(options =>
             "https://securityapi-x4rg.onrender.com"
         )
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
 var app = builder.Build();
-
-// Apply CORS
-app.UseCors("AllowReactLocal");
 
 // Enforce HTTPS in non-development
 if (!app.Environment.IsDevelopment())
@@ -130,6 +128,9 @@ if (!app.Environment.IsDevelopment())
 
 // Redirect all HTTP to HTTPS
 app.UseHttpsRedirection();
+
+// Apply CORS
+app.UseCors("AllowReactLocal");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -143,5 +144,6 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking API V1");
     c.RoutePrefix = string.Empty;
 });
+
 
 app.Run();
