@@ -3,14 +3,48 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using NWebsec.AspNetCore.Middleware;
+using Backend.Middleware;
 
 // Load .env file for local development
 Env.Load();
 Console.WriteLine(Environment.GetEnvironmentVariable("JWT_KEY"));
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    // login only allows 5 requests every 5 minutes
+    options.AddFixedWindowLimiter("login", o =>
+    {
+        o.PermitLimit = 5;
+        o.Window = TimeSpan.FromMinutes(5);
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 0;
+    });
+
+    // register only allows 3 requests every 10 minutes
+    options.AddFixedWindowLimiter("register", o =>
+    {
+        o.PermitLimit = 3;
+        o.Window = TimeSpan.FromMinutes(10);
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 0;
+    });
+
+    // custom rejection response
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync("{\"message\":\"Too many requests. Please try again later.\"}", token);
+    };
+});
 
 // Load SSL Certificate 
 X509Certificate2? certificate = null;
@@ -160,6 +194,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseCsp(options => options
+    .DefaultSources(s => s.Self())
+    .ScriptSources(s => s.Self())
+    .StyleSources(s => s.Self())
+);
+
+
+app.UseRateLimiter();
+
+app.UseCors("AllowReactLocal");
+app.UseSecurityHeaders();
 // Middleware 
 if (!app.Environment.IsDevelopment())
 {

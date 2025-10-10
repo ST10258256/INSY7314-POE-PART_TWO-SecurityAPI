@@ -6,6 +6,8 @@ using System.Security.Claims;
 using MongoDB.Driver;
 using Backend.Repositories;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 
 
@@ -22,6 +24,7 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
+[EnableRateLimiting("register")]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
@@ -78,6 +81,7 @@ public class AuthController : ControllerBase
         return Ok("User registered successfully");
     }
 
+[EnableRateLimiting("login")]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
@@ -101,27 +105,27 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user)
     {
-        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")!;
-        var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
-        var key = new SymmetricSecurityKey(keyBytes);
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")!;
+    var keyBytes = Encoding.UTF8.GetBytes(jwtKey); 
+    var key = new SymmetricSecurityKey(keyBytes);
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id!),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim("account_number", user.AccountNumber)
-        };
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id!),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("account_number", user.AccountNumber)
+    };
 
-        var token = new JwtSecurityToken(
-            issuer: Environment.GetEnvironmentVariable("JWT_ISSUER"),
-            audience: Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIREMINUTES") ?? "60")),
-            signingCredentials: creds
-        );
+    var token = new JwtSecurityToken(
+        issuer: Environment.GetEnvironmentVariable("JWT_ISSUER"),
+        audience: Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIREMINUTES") ?? "60")),
+        signingCredentials: creds
+    );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    return new JwtSecurityTokenHandler().WriteToken(token);
+    }   
 }
