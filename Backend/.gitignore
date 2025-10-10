@@ -3,3 +3,7 @@ Backend/bin/
 Backend/obj/
 bin/
 obj/
+key.pem.b64
+cert.pem.b64
+key.pem
+cert.pem
