@@ -3,12 +3,46 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 // Load .env file
 Env.Load();
+Console.WriteLine("JWT_KEY: " + Environment.GetEnvironmentVariable("JWT_KEY"));
+Console.WriteLine("MongoDB: " + Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING"));
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    // Login limiter: 5 attempts / 5 min
+    options.AddFixedWindowLimiter("login", o =>
+    {
+        o.PermitLimit = 5;
+        o.Window = TimeSpan.FromMinutes(5);
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 0;
+    });
+
+    // Register limiter: 3 requests / 10 min
+    options.AddFixedWindowLimiter("register", o =>
+    {
+        o.PermitLimit = 3;
+        o.Window = TimeSpan.FromMinutes(10);
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 0;
+    });
+
+    // Global custom rejection response
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync("{\"message\":\"Too many requests. Please try again later.\"}", token);
+    };
+});
 
 // Read env variables
 var mongoConnection = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
@@ -94,8 +128,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 var app = builder.Build();
+
+app.UseRateLimiter();
 
 app.UseCors("AllowReactLocal");
 app.UseHttpsRedirection();
@@ -117,6 +152,5 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking API V1");
     c.RoutePrefix = string.Empty;
 });
-
 
 app.Run();

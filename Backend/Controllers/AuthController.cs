@@ -6,6 +6,8 @@ using System.Security.Claims;
 using MongoDB.Driver;
 using Backend.Repositories;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,7 +22,8 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
-   [HttpPost("register")]
+[EnableRateLimiting("register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         if (!Regex.IsMatch(dto.Email, @"^\S+@\S+\.\S+$"))
@@ -60,6 +63,7 @@ public class AuthController : ControllerBase
         return Ok("User registered");
 }
 
+[EnableRateLimiting("login")]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
@@ -98,10 +102,4 @@ public class AuthController : ControllerBase
 
     return new JwtSecurityTokenHandler().WriteToken(token);
     }   
-
-
-
-
-
 }
-
