@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import fs from 'fs'
 import path from 'path'
 
-export default defineConfig(({ command }) => {
+export default defineConfig(() => {  
   const localCertPath = path.resolve(__dirname, 'cert.pem')
   const localKeyPath = path.resolve(__dirname, 'key.pem')
 
