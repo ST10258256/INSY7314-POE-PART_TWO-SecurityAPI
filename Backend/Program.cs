@@ -48,23 +48,29 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PORT")))
     {
-        // Local dev: use HTTPS
-        options.ListenAnyIP(portToUse, listenOptions =>
+        // Local development: use HTTPS
+        if (File.Exists("cert.pem") && File.Exists("key.pem"))
         {
-            if (certificate != null)
-                listenOptions.UseHttps(certificate);
-        });
+            var certificate = X509Certificate2.CreateFromPemFile("cert.pem", "key.pem");
+            certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+
+            options.ListenAnyIP(portToUse, listenOptions =>
+            {
+                listenOptions.UseHttps(certificate); // HTTPS locally
+            });
+        }
+        else
+        {
+            // fallback to HTTP if certs not found
+            options.ListenAnyIP(portToUse);
+        }
     }
     else
     {
-        // Render: use HTTP only on the port they assign
-        options.ListenAnyIP(portToUse); // plain HTTP
+        // On Render: bind to Render's PORT (HTTP)
+        options.ListenAnyIP(portToUse);
     }
 });
-
-
-
-
 
 
 
