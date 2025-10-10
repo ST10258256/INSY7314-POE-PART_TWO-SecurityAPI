@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using NWebsec.AspNetCore.Middleware;
+using Backend.Middleware;
 
 // Load .env file
 Env.Load();
@@ -17,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRateLimiter(options =>
 {
-    // Login limiter: 5 attempts / 5 min
+    // login only allows 5 requests every 5 minutes
     options.AddFixedWindowLimiter("login", o =>
     {
         o.PermitLimit = 5;
@@ -26,7 +28,7 @@ builder.Services.AddRateLimiter(options =>
         o.QueueLimit = 0;
     });
 
-    // Register limiter: 3 requests / 10 min
+    // register only allows 3 requests every 10 minutes
     options.AddFixedWindowLimiter("register", o =>
     {
         o.PermitLimit = 3;
@@ -35,7 +37,7 @@ builder.Services.AddRateLimiter(options =>
         o.QueueLimit = 0;
     });
 
-    // Global custom rejection response
+    // custom rejection response
     options.OnRejected = async (context, token) =>
     {
         context.HttpContext.Response.StatusCode = 429;
@@ -130,9 +132,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseCsp(options => options
+    .DefaultSources(s => s.Self())
+    .ScriptSources(s => s.Self())
+    .StyleSources(s => s.Self())
+);
+
+
 app.UseRateLimiter();
 
 app.UseCors("AllowReactLocal");
+app.UseSecurityHeaders();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
