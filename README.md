@@ -79,9 +79,9 @@ open powershell in adminastrator mode, then install
 
 7. You will jabe to go to the file on the left callled Trusted Root Certification Authorities.
 
-8. Right Click The certificate foolder and then import files
+8. Right Click The certificate foolder and then all tasks and then import
 
-9. Go to where you installed the rootCA.pem and import that file 
+9. Go to where you installed the rootCA.pem and import that file. it probably be be in users/youruser/AppData/mkcert. If you are struggling to find it in that folder change the view to all files
 
 10. You will click that then press next 
 
