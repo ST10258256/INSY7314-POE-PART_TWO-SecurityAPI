@@ -148,6 +148,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5173",
+            "https://localhost:5173",
             "http://localhost:5174",
             "https://securityapi-x4rg.onrender.com"
         )
