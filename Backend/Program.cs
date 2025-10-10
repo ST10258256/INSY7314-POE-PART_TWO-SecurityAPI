@@ -40,27 +40,30 @@ else
 }
 
 //  Configure Kestrel 
-var port = Environment.GetEnvironmentVariable("PORT");
-int.TryParse(port, out var renderPort);
+var renderPort = Environment.GetEnvironmentVariable("PORT");
+int.TryParse(renderPort, out var portToUse);
+if (portToUse == 0) portToUse = 5162;
+
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    if (renderPort > 0)
+    // HTTP fallback for testing
+    options.ListenLocalhost(5162); 
+
+    // HTTPS with local cert
+    if (File.Exists("cert.pem") && File.Exists("key.pem"))
     {
-        options.ListenAnyIP(renderPort); // Render's port
-    }
-    else
-    {
-        options.ListenAnyIP(5162); // Local dev HTTP fallback
-        if (certificate != null)
+        var cert = X509Certificate2.CreateFromPemFile("cert.pem", "key.pem");
+        cert = new X509Certificate2(cert.Export(X509ContentType.Pfx));
+
+        options.ListenLocalhost(5173, listenOptions =>
         {
-            options.ListenAnyIP(7068, listenOptions =>
-            {
-                listenOptions.UseHttps(certificate); // Local dev HTTPS
-            });
-        }
+            listenOptions.UseHttps(cert);
+        });
     }
 });
+
+
 
 
 //  MongoDB & Repositories 
