@@ -4,7 +4,7 @@ import axios from "axios";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("bank_user") || "null");
+ /* const user = JSON.parse(localStorage.getItem("bank_user") || "null"); */
   const token = localStorage.getItem("bank_token");
 
   const [payments, setPayments] = useState([]);
