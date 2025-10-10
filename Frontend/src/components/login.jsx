@@ -107,11 +107,7 @@ export default function Login() {
               />
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <small>
-                <a href="/forgot" className="text-decoration-none">Forgot password?</a>
-              </small>
-            </div>
+       
 
             <button className="btn btn-primary w-100" type="submit" disabled={loading}>
               {loading ? "Signing in…" : "Login"}

@@ -51,8 +51,7 @@ export default function Dashboard() {
   return (
     <div>
       <h2>Dashboard</h2>
-       <p>Welcome {user?.username }.</p> {/* //////////////// */}
-
+      
       <div className="mb-3">
         <Link to="/pay" className="btn btn-success me-2">Make Payment</Link>
         <button className="btn btn-outline-secondary" onClick={handleLogout}>Logout</button>
