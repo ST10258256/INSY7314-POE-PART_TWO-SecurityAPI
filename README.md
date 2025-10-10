@@ -49,8 +49,7 @@ The system provides secure user authentication using JWT, API communication, and
 git clone https://github.com/ST10258256/INSY7314-POE-PART_TWO-SecurityAPI.git
 ```
 
-2. You need to create a personal certifcate for your local device although render already handles all ssl for the backend so everything should be secure either way but to make it more secure for the frontend you will have to generate your own key
-open powershell in adminastrator mode, then install 
+2.The project should work from here but there since you are using local you will have to make your own certificate but the site is secure as render passes everything already with ssl, go to step 15 if you do not mind
 
 ```bash
   choco install mkcert -y
