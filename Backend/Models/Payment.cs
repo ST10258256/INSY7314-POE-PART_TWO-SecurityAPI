@@ -10,6 +10,9 @@ public class Payment
     [BsonElement("userId")]
     public string UserId { get; set; }
 
+    [BsonElement("AccountNumber")]
+    public string AccountNumber { get; set; }
+
     [BsonElement("amount")]
     public decimal Amount { get; set; }
 

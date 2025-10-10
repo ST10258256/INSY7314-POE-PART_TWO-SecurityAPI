@@ -4,7 +4,7 @@ import axios from "axios";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("bank_user") || "null");
+ /* const user = JSON.parse(localStorage.getItem("bank_user") || "null"); */
   const token = localStorage.getItem("bank_token");
 
   const [payments, setPayments] = useState([]);
@@ -51,8 +51,7 @@ export default function Dashboard() {
   return (
     <div>
       <h2>Dashboard</h2>
-       <p>Welcome {user?.username }.</p> {/* //////////////// */}
-
+      
       <div className="mb-3">
         <Link to="/pay" className="btn btn-success me-2">Make Payment</Link>
         <button className="btn btn-outline-secondary" onClick={handleLogout}>Logout</button>

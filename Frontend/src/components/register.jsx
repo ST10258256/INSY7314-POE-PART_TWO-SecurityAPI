@@ -1,53 +1,81 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerCustomer } from "../api"; // make sure the path is correct
+import { registerCustomer } from "../api";
+import * as validation from "../utils/validation"; 
 
 export default function Register() {
   const [form, setForm] = useState({
-    firstName: "", ////////////////
-    lastName: "", ////////////////
-    username: "", ////////////////
-    email: "", ////////////////
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
     idNumber: "",
     accountNumber: "",
     password: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false); ////////////////
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function onChange(e) {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const sanitizedValue = validation.sanitizeInput(e.target.value);
+    setForm(prev => ({ ...prev, [e.target.name]: sanitizedValue }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setLoading(true); ////////////////
+    setLoading(true);
 
-    const payload = {
-      firstName: form.firstName,
-      lastName: form.lastName,
-      username: form.username,
-      email: form.email,
-      idNumber: form.idNumber,
-      accountNumber: form.accountNumber,
-      password: form.password,
-    };
+    // Frontend validation using your patterns
+    if (!validation.validateInput(form.firstName, "fullName")) {
+      setError("Invalid first name, must be between 2-20 characters with no numbers or special characters");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.lastName, "fullName")) {
+      setError("Invalid last name, must be between 2-20 characters with no numbers or special characters");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.username, "username")) {
+      setError("Invalid username, must be between 3-20 characters with no special characters");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.email, "email")) {
+      setError("Invalid email address, Please enter a valid one");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.idNumber, "idNumber")) {
+      setError("Invalid ID number Must be between 6-13 characters, only numbers are allowed");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.accountNumber, "accountNumber")) {
+      setError("Invalid account number, must be between 5-15 characters, only numbers are allowed");
+      setLoading(false);
+      return;
+    }
+    if (!validation.validateInput(form.password, "password")) {
+      setError("Invalid password, Password must be 8-20 characters and may contain safe symbols");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const res = await registerCustomer(payload);
+      const res = await registerCustomer({ ...form });
       setSuccess("Registered successfully! Redirecting...");
-      console.log(res);
-      // store user if returned
-      if (res?.user) localStorage.setItem("bank_user", JSON.stringify(res.user)); ////////////////
+
+      if (res?.user) localStorage.setItem("bank_user", JSON.stringify(res.user));
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setError(err.response?.data || err.message || "Registration failed"); ////////////////
+      setError(err.response?.data || err.message || "Registration failed");
     } finally {
-      setLoading(false); ////////////////
+      setLoading(false);
     }
   }
 
@@ -57,7 +85,6 @@ export default function Register() {
         <div className="card-body p-4">
           <div className="mb-3 text-center">
             <h3 className="mb-0">Create an account</h3>
-      
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -87,26 +114,26 @@ export default function Register() {
 
             <div className="row g-2 mt-2">
               <div className="col-md-6">
-                <label className="form-label small">Username</label> {/* //////////////// */}
+                <label className="form-label small">Username</label>
                 <input
-                  name="username" /* //////////////// */
-                  className="form-control" /* //////////////// */
-                  placeholder="username" /* //////////////// */
-                  value={form.username || ""} /* //////////////// */
-                  onChange={onChange} /* //////////////// */
-                /> {/* //////////////// */}
+                  name="username"
+                  className="form-control"
+                  placeholder="username"
+                  value={form.username}
+                  onChange={onChange}
+                />
               </div>
 
               <div className="col-md-6">
-                <label className="form-label small">Email</label> {/* //////////////// */}
+                <label className="form-label small">Email</label>
                 <input
-                  name="email" /* //////////////// */
-                  type="email" /* //////////////// */
-                  className="form-control" /* //////////////// */
-                  placeholder="you@example.com" /* //////////////// */
-                  value={form.email || ""} /* //////////////// */
-                  onChange={onChange} /* //////////////// */
-                /> {/* //////////////// */}
+                  name="email"
+                  type="email"
+                  className="form-control"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={onChange}
+                />
               </div>
             </div>
 
