@@ -31,37 +31,37 @@ export default function Register() {
 
     // Frontend validation using your patterns
     if (!validation.validateInput(form.firstName, "fullName")) {
-      setError("Invalid first name");
+      setError("Invalid first name, must be between 2-20 characters with no numbers or special characters");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.lastName, "fullName")) {
-      setError("Invalid last name");
+      setError("Invalid last name, must be between 2-20 characters with no numbers or special characters");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.username, "username")) {
-      setError("Invalid username");
+      setError("Invalid username, must be between 3-20 characters with no special characters");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.email, "email")) {
-      setError("Invalid email address");
+      setError("Invalid email address, Please enter a valid one");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.idNumber, "idNumber")) {
-      setError("Invalid ID number");
+      setError("Invalid ID number Must be between 6-13 characters, only numbers are allowed");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.accountNumber, "accountNumber")) {
-      setError("Invalid account number");
+      setError("Invalid account number, must be between 5-15 characters, only numbers are allowed");
       setLoading(false);
       return;
     }
     if (!validation.validateInput(form.password, "password")) {
-      setError("Invalid password");
+      setError("Invalid password, Password must be 8-20 characters and may contain safe symbols");
       setLoading(false);
       return;
     }
