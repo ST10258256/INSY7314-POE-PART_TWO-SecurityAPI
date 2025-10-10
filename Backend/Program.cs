@@ -1,43 +1,62 @@
 using Backend.Repositories;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-// Load .env file
+// Load .env file for local development
 Env.Load();
 Console.WriteLine(Environment.GetEnvironmentVariable("JWT_KEY"));
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load SSL certificate
-var certPath = Path.Combine(builder.Environment.ContentRootPath, "cert.pem");
-var keyPath = Path.Combine(builder.Environment.ContentRootPath, "key.pem");
-var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
-certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+// Load SSL Certificate 
+X509Certificate2? certificate = null;
 
-// Configure Kestrel with HTTPS using the certificate
+// Check for Render environment variables
+var certB64 = Environment.GetEnvironmentVariable("CERT_PEM");
+var keyB64 = Environment.GetEnvironmentVariable("KEY_PEM");
+
+if (!string.IsNullOrEmpty(certB64) && !string.IsNullOrEmpty(keyB64))
+{
+    // Decode Base64 and create certificate
+    var certPem = Encoding.UTF8.GetString(Convert.FromBase64String(certB64));
+    var keyPem = Encoding.UTF8.GetString(Convert.FromBase64String(keyB64));
+
+    certificate = X509Certificate2.CreateFromPem(certPem, keyPem);
+    certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+}
+else if (File.Exists("cert.pem") && File.Exists("key.pem"))
+{
+    // Local development
+    certificate = X509Certificate2.CreateFromPemFile("cert.pem", "key.pem");
+    certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+}
+else
+{
+    Console.WriteLine("No SSL certificate found. HTTPS will not work.");
+}
+
+//  Configure Kestrel 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    // Listen on HTTP
-    options.ListenLocalhost(5162);
+    options.ListenAnyIP(5162); // HTTP
 
-    // Listen on HTTPS
-    options.ListenLocalhost(7068, listenOptions =>
+    if (certificate != null)
     {
-        listenOptions.UseHttps(certificate);
-    });
+        options.ListenAnyIP(7068, listenOptions =>
+        {
+            listenOptions.UseHttps(certificate);
+        });
+    }
 });
 
-// Read env variables
+//  MongoDB & Repositories 
 var mongoConnection = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
 var mongoDbName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
 
-// Register MongoDB context
 builder.Services.AddSingleton<IMongoDbContext>(sp =>
     new MongoDbContext(mongoConnection!, mongoDbName!)
 );
@@ -45,7 +64,7 @@ builder.Services.AddSingleton<IMongoDbContext>(sp =>
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<PaymentRepository>();
 
-// JWT config
+// ---------- JWT ----------
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")!;
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 var key = new SymmetricSecurityKey(keyBytes);
@@ -71,13 +90,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+//Controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Banking API", Version = "v1" });
-
-    // JWT Authorization in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
@@ -86,7 +104,6 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
@@ -102,7 +119,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS policy
+// CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactLocal", policy =>
@@ -120,30 +137,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Enforce HTTPS in non-development
+// Middleware 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHsts();  // Strict HTTPS headers
+    app.UseHsts();
 }
 
-// Redirect all HTTP to HTTPS
 app.UseHttpsRedirection();
-
-// Apply CORS
 app.UseCors("AllowReactLocal");
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Swagger UI
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking API V1");
     c.RoutePrefix = string.Empty;
 });
-
 
 app.Run();
