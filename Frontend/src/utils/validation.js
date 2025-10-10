@@ -3,7 +3,7 @@
 export const patterns = {
   username: /^[a-zA-Z0-9_]{3,20}$/,
   email: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
-  password: /^[A-Za-z\d@$!%*?&]{8,}$/,
+  password: /^[A-Za-z\d@$!%*?&]{8,20}$/,
   text: /^[a-zA-Z0-9\s.,!?'-]{1,200}$/,
   number: /^\d+$/,
   accountNumber: /^[0-9]{5,15}$/,     // digits only
