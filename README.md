@@ -31,7 +31,11 @@ The system provides secure user authentication using JWT, API communication, and
 
 - MongoDB integration for data storage
 
-- React + Vite frontend with secure HTTPS 
+- React + Vite frontend with secure HTTPS
+
+- Rate limiting is implemented
+
+- CSP is also Implemented
 
 ---
 
@@ -97,3 +101,5 @@ JWT_EXPIREMINUTES<giver expirey date>
 - React + Vite
 - Docker
 - JWT
+- CSP
+
