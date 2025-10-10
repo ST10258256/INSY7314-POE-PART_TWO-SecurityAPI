@@ -39,29 +39,21 @@ else
     Console.WriteLine("No SSL certificate found. HTTPS will not work.");
 }
 
-//  Configure Kestrel 
-var renderPort = Environment.GetEnvironmentVariable("PORT");
+// Configure Kestrel 
+var renderPort = Environment.GetEnvironmentVariable("PORT") ?? "5162";
 int.TryParse(renderPort, out var portToUse);
 if (portToUse == 0) portToUse = 5162;
 
-
 builder.WebHost.ConfigureKestrel(options =>
 {
-    // HTTP fallback for testing
-    options.ListenLocalhost(5162); 
-
-    // HTTPS with local cert
-    if (File.Exists("cert.pem") && File.Exists("key.pem"))
+    options.ListenAnyIP(portToUse, listenOptions =>
     {
-        var cert = X509Certificate2.CreateFromPemFile("cert.pem", "key.pem");
-        cert = new X509Certificate2(cert.Export(X509ContentType.Pfx));
-
-        options.ListenLocalhost(5173, listenOptions =>
-        {
-            listenOptions.UseHttps(cert);
-        });
-    }
+        if (certificate != null)
+            listenOptions.UseHttps(certificate); 
+    });
 });
+
+
 
 
 
