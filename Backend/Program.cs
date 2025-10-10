@@ -90,15 +90,16 @@ builder.Services.AddCors(options =>
              "https://securityapi-x4rg.onrender.com" //For the deployed react app on render.com
         )
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
 
 var app = builder.Build();
 
-app.UseCors("AllowReactLocal");
 app.UseHttpsRedirection();
+app.UseCors("AllowReactLocal");
 app.UseAuthentication();
 app.UseAuthorization();
 
