@@ -37,6 +37,8 @@ The system provides secure user authentication using JWT, API communication, and
 
 - CSP is also Implemented
 
+- Idle session timeouts implemented for seession jacking
+
 ---
 
 ## How to get started using our app
@@ -47,22 +49,68 @@ The system provides secure user authentication using JWT, API communication, and
 git clone https://github.com/ST10258256/INSY7314-POE-PART_TWO-SecurityAPI.git
 ```
 
-2. Once you have the repo you will have to cd into the frontend
+2. You need to create a personal certifcate for your local device although render already handles all ssl for the backend so everything should be secure either way but to make it more secure for the frontend you will have to generate your own key
+open powershell in adminastrator mode, then install 
+
+```bash
+  choco install mkcert -y
+```
+
+3. Then you will have to install it 
+
+```bash
+  mkcert -install
+```
+
+4. Then in the local folders for frontend you will have make a certificate for your localhost this can be done as follows
+
+```bash
+  cd Frontend
+  mkcert locahost 127.0.0.1 :: 1
+```
+
+5. Then you have to trust the certificate you just made
+
+6. So click windows + r ; and then type in 
+
+```bash
+  certmgr.msc
+```
+
+7. You will jabe to go to the file on the left callled Trusted Root Certification Authorities.
+
+8. Right Click The certificate foolder and then import files
+
+9. Go to where you installed the rootCA.pem and import that file 
+
+10. You will click that then press next 
+
+11. And then for the next option we will use Place all certificates in the following store in Trusted Root Certifcation Authorities
+
+12. Click next and then it should be finished
+
+13. You will have to clear your cache and restart your browser  and then it should work
+
+
+14. Once you have done these steps you will be able to run the Frontend but you can run the frontend if you don't mind the frontend Certificate issues
 
 ```bash
 cd Frontend
 ```
 
-3. Once you have done that you will have to run the frontend
+15. Once you have done that you will have to run the frontend
 
 ```bash
 npm run dev
 ```
 
-4. Click on the link it gives you
-5. This will take you to your localhost on the webpage
-6. This is all done over ssl and the backend is being hosted over render so you will not have to run anything else
-7. Now you can interact with the app and make an account; login; make payments and view the payments that you have made
+16. Click on the link it gives you
+    
+17. This will take you to your localhost on the webpage
+
+19. This is all done over ssl and the backend is being hosted over render so you will not have to run anything else
+  
+21. Now you can interact with the app and make an account; login; make payments and view the payments that you have made
 
 ### Running backend locally
 
