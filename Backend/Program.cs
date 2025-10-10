@@ -46,12 +46,23 @@ if (portToUse == 0) portToUse = 5162;
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(portToUse, listenOptions =>
+    if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PORT")))
     {
-        if (certificate != null)
-            listenOptions.UseHttps(certificate); 
-    });
+        // Local dev: use HTTPS
+        options.ListenAnyIP(portToUse, listenOptions =>
+        {
+            if (certificate != null)
+                listenOptions.UseHttps(certificate);
+        });
+    }
+    else
+    {
+        // Render: use HTTP only on the port they assign
+        options.ListenAnyIP(portToUse); // plain HTTP
+    }
 });
+
+
 
 
 
